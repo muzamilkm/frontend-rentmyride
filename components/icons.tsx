@@ -8,6 +8,7 @@ import {
   BsChevronDown,
   BsFire,
   BsCheck2,
+  BsFillPersonFill
 } from "react-icons/bs"
 import {
   AiOutlineEllipsis,
@@ -100,6 +101,7 @@ const icons = {
   statsBar: ImStatsBars,
   mixer: RxMixerHorizontal,
   check: BsCheck2,
+  profile: BsFillPersonFill,
 }
 
 export const Icons: IconsType = icons
