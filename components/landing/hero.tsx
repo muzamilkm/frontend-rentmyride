@@ -16,9 +16,10 @@ export default function HeroHeader() {
             {heroHeader.subheader}
           </h2>
         </div>
+      
         <Link
-          href="localhost:3000/signup"
-          target="_blank"
+          href="/signup"
+          // target="_blank"
           className={`w-[10rem] ${cn(buttonVariants({ size: "lg" }))}`}
         >
           Get started
