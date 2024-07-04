@@ -15,6 +15,8 @@ import {
   } from "@/components/ui/form"
   import { Input } from "@/components/ui/input"
 import { useRouter } from 'next/navigation'
+import { AlertCircle } from "lucide-react"
+import {Alert,AlertTitle,} from "@/components/ui/alert"
 
 const endpoint = process.env.NEXT_PUBLIC_BACKEND_ENDPOINT
 
@@ -26,6 +28,9 @@ const formSchema = z.object({
 export default function LoginForm() {
 
     const router = useRouter()
+
+    const [successfulLogin, setSuccessfulLogin] = React.useState(false)
+    const [failedLogin, setFailedLogin] = React.useState(false)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -41,13 +46,14 @@ export default function LoginForm() {
                 body: JSON.stringify(values),
             })
             if (response.ok) {
+                setFailedLogin(false)
                 const responseData = await response.json()
                 localStorage.setItem('token', responseData.token)
                 localStorage.setItem('uuid', responseData.userId)
-                alert('Login successful')
+                setSuccessfulLogin(true)
                 router.push('/home')
             } else {
-                alert('Login failed')
+                setFailedLogin(true)
             }
         }
         catch(error){
@@ -56,6 +62,21 @@ export default function LoginForm() {
     }
     return (
         <div className="flex flex-col items-center justify-center h-screen">
+            {successfulLogin ? 
+                <Alert className='h-200 w-200 mb-10'>
+                    <AlertTitle>Login Successful!</AlertTitle>
+                </Alert>
+                :
+                null
+            }
+            {failedLogin ?
+                <Alert variant="destructive" className='h-200 w-200 mb-10'>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Invalid Email or Password</AlertTitle>
+                </Alert>
+                :
+                null
+            }
                 <h1 className='mb-10'>Login</h1>
                 <div className="max-w-lg mx-auto p-6 bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-white border border-white rounded-lg">
             <Form {...form}>
