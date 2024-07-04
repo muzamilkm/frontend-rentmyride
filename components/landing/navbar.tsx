@@ -6,6 +6,7 @@ import { ModeToggle } from "@/components/mode-toggle"
 import { siteConfig } from "@/config/site"
 import { navLinks } from "@/lib/links"
 import { settings } from "@/config/settings"
+import { buttonVariants } from "../ui/button"
 
 export default function Navbar() {
   const [navbar, setNavbar] = useState(false)
@@ -95,9 +96,15 @@ export default function Navbar() {
           </div>
         </div>
         {settings.themeToggleEnabled && (
-          <div className="hidden md:block">
-            <ModeToggle />
+          <div className="hidden md:flex items-center space-x-4">
+          <div className="mt-4">
+              <ModeToggle />
           </div>
+          <div className="flex hover:cursor-pointer mt-4">
+            <Link className={buttonVariants({ variant: "outline" })}
+            href="/login">Login</Link>
+          </div>
+        </div>
         )}
       </nav>
     </header>

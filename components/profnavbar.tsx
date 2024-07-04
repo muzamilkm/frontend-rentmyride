@@ -21,9 +21,15 @@ export default function ProfNavbar() {
     uuid = localStorage.getItem('uuid');
     token = localStorage.getItem('token');
   }
+
   const router = useRouter()
   const profclick = () => {
-    router.push(`/profile/`+localStorage.getItem('uuid'))
+    if (uuid == null || token == null){
+      router.push('/login')
+    }
+    else{
+      router.push(`/profile/`+uuid)
+    }
   }
 
   useEffect(() => {
