@@ -12,28 +12,79 @@ import {
     FormLabel,
     FormMessage,
   } from "@/components/ui/form"
-  import { Input } from "@/components/ui/input"
+import { Input } from "@/components/ui/input"
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogFooter, AlertDialogHeader } from '../ui/alert-dialog'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+
+const endpoint = process.env.NEXT_PUBLIC_BACKEND_ENDPOINT
+console.log(endpoint)
 
 const formSchema = z.object({
     email: z.string().email(),
     password: z.string().min(8, { message: 'Password must be at least 8 characters long' }),
-    fullname: z.string().min(2, { message: 'Full name must be at least 2 characters long' }),
+    name: z.string().min(2, { message: 'Full name must be at least 2 characters long' }),
     phone: z.string().min(10, { message: 'Phone number must be at least 10 characters long' }),
     location: z.string().min(2, { message: 'Location must be at least 2 characters long' }),
 })
 
 export default function SignUpForm() {
 
+    const router = useRouter()
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+    const [signUp, setSignUp] = useState(false)
+
+    const handleClick = () => {
+        router.push('/login');
+    }
+
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        if(values)
+        {
+            try{
+                console.log(JSON.stringify(values))
+            const response = await fetch(`${endpoint}users/signup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(values)
+            })
+
+            if(response.ok)
+            {
+                const responseData = await response.json()
+                console.log('User signed up successfully', responseData);
+                setSignUp(true)
+                
+            }
+            else
+            {
+                const errorData = await response.json()
+                console.log('User sign up failed', errorData)
+            }
+        }
+        catch(error)
+        {
+            console.log('Failed to sign up', error)
+        }
+        }
     }
     return (
         <div className="flex flex-col items-center justify-center h-screen">
-                <h1 className='mb-10'>Sign Up And Join Us Today</h1>
+            <AlertDialog open={signUp}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>Sign Up Successful</AlertDialogHeader>
+                    <AlertDialogAction>
+                        <Button onClick={handleClick}>Login</Button>
+                    </AlertDialogAction>
+                </AlertDialogContent>
+            </AlertDialog>
+            <h1 className='mb-10'>Sign Up And Join Us Today</h1>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField control={form.control} name="email"
@@ -58,14 +109,14 @@ export default function SignUpForm() {
                         </FormItem>
                     )} />
 
-                    <FormField control={form.control} name="fullname"
+                    <FormField control={form.control} name="name"
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Full Name</FormLabel>
                             <FormControl>
                                 <Input placeholder="" {...field} />
                             </FormControl>
-                            <FormMessage>{form.formState.errors.fullname?.message}</FormMessage>
+                            <FormMessage>{form.formState.errors.name?.message}</FormMessage>
                         </FormItem>
                     )} />
 

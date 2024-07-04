@@ -24,7 +24,7 @@ export const siteConfig: SiteConfig = {
   ],
   url: {
     base: baseUrl,
-    author: "https://redpangilinan.live",
+    author: "Muzamil Kaleem",
   },
   ogImage: `${baseUrl}/og.jpg`,
 }
