@@ -14,6 +14,9 @@ import {
     FormMessage,
   } from "@/components/ui/form"
   import { Input } from "@/components/ui/input"
+import { useRouter } from 'next/navigation'
+
+const endpoint = process.env.NEXT_PUBLIC_BACKEND_ENDPOINT
 
 const formSchema = z.object({
     email: z.string().email(),
@@ -22,12 +25,34 @@ const formSchema = z.object({
 
 export default function LoginForm() {
 
+    const router = useRouter()
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try{
+            const response = await fetch(`${endpoint}/users/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values),
+            })
+            if (response.ok) {
+                const responseData = await response.json()
+                localStorage.setItem('token', responseData.token)
+                localStorage.setItem('uuid', responseData.userId)
+                alert('Login successful')
+                router.push('/home')
+            } else {
+                alert('Login failed')
+            }
+        }
+        catch(error){
+            console.error('An unexpected error occurred: ', error)
+        }
     }
     return (
         <div className="flex flex-col items-center justify-center h-screen">

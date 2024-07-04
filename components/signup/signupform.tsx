@@ -47,7 +47,7 @@ export default function SignUpForm() {
         {
             try{
                 console.log(JSON.stringify(values))
-            const response = await fetch(`${endpoint}users/signup`, {
+            const response = await fetch(`${endpoint}/users/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
