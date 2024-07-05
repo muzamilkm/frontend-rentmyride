@@ -8,7 +8,9 @@ import {
   BsChevronDown,
   BsFire,
   BsCheck2,
-  BsFillPersonFill
+  BsFillPersonFill,
+  BsList,
+  BsArrowRight
 } from "react-icons/bs"
 import {
   AiOutlineEllipsis,
@@ -69,6 +71,17 @@ const icons = {
       />
     )
   },
+  profbanner: () => {
+    return (
+      <Image
+        src="profbanner.svg"
+        className="dark:brightness-0 dark:invert-[1]"
+        width={100}
+        height={100}
+        alt="Card image"
+      />
+    )
+  },
 
   // Features
   userFriendly: AiOutlineFileSearch,
@@ -102,6 +115,8 @@ const icons = {
   mixer: RxMixerHorizontal,
   check: BsCheck2,
   profile: BsFillPersonFill,
+  list: BsList,
+  logout: BsArrowRight,
 }
 
 export const Icons: IconsType = icons

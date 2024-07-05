@@ -8,6 +8,7 @@ import { navLinks } from "@/lib/links"
 import { settings } from "@/config/settings"
 import { Icons } from "./icons"
 import { useRouter } from "next/navigation"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 
 export default function ProfNavbar() {
   const [navbar, setNavbar] = useState(false)
@@ -29,6 +30,17 @@ export default function ProfNavbar() {
     }
     else{
       router.push(`/profile/`+uuid)
+    }
+  }
+
+  const logout = () => {
+    if (uuid == null || token == null){
+      router.push('/login')
+    }
+    else{
+      localStorage.removeItem('uuid')
+      localStorage.removeItem('token')
+      router.push('/')
     }
   }
 
@@ -117,9 +129,32 @@ export default function ProfNavbar() {
             <div className="mt-4">
                 <ModeToggle />
             </div>
-            <div className="flex hover:cursor-pointer" onClick={profclick}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="flex hover:cursor-pointer">
+                  <Icons.list className="h-[1.5rem] w-[1.5rem] rotate-0 scale-100 transition-all dark:rotate-0 dark:scale-100 dark:stroke-white stroke-black mt-4" />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-48 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg">
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    <div className="flex items-center hover:cursor-pointer space-x-2" onClick={profclick}>
+                      <Icons.profile className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:rotate-0 dark:scale-100 dark:stroke-white stroke-black" />
+                      <span>Your Profile</span>
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <div className="flex items-center hover:cursor-pointer space-x-2" onClick={logout}>
+                      <Icons.logout className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all stroke-red-500" />
+                      <span className="text-red-500 dark:text-red-300">Logout</span>
+                    </div>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {/* <div className="flex hover:cursor-pointer" onClick={profclick}>
                 <Icons.profile className="absolute h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:rotate-0 dark:scale-100 dark:stroke-white stroke-black" />
-            </div>
+            </div> */}
           </div>
         )}
         
