@@ -1,7 +1,7 @@
 "use client"
 
-import ProfPanel from "@/components/profile/profilepanel";
-import ProfNavbar from "@/components/profnavbar";
+import ProfContent from "@/components/profile/content";
+import Layout from "@/components/profile/layout";
 import { useRouter } from "next/navigation";
 
 let uuid: string | null, token: string | null;
@@ -17,7 +17,8 @@ export default function Profile() {
         router.push('/login')
     return (
         <main>
-            <ProfNavbar/>
-            <ProfPanel/>
+          <Layout>
+            <ProfContent/>
+          </Layout>
         </main>
     )};
