@@ -9,6 +9,7 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../ui/card";
 import { useRouter } from "next/navigation";
+import { useState } from 'react';
 
 
 const endpoint=process.env.NEXT_PUBLIC_BACKEND_ENDPOINT;
@@ -32,22 +33,26 @@ export default function ProfContent() {
     }
 
     const router = useRouter()
+    const [updated, setUpdated] = useState()
 
     const accUpdate = async () => {
         const name = (document.getElementById('name') as HTMLInputElement).value;
         const email = (document.getElementById('Email') as HTMLInputElement).value;
         const phone = (document.getElementById('Phone') as HTMLInputElement).value;
         const location = (document.getElementById('Location') as HTMLInputElement).value;
+        console.log(name + email + phone + location)
         const response = await fetch(`${endpoint}/users/updateuser/${uuid}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + token
             },
-            body: JSON.stringify({ name, email, phone, location })
+            body: JSON.stringify({ uuid, name, email, phone, location })
         });
         const data = await response.json();
         console.log(data);
+
+        
     }
 
     const passUpdate = async () => {
