@@ -32,51 +32,7 @@ export default function ProfContent() {
         console.log(data);
     }
 
-    const router = useRouter()
-    const [updated, setUpdated] = useState()
-
-    const accUpdate = async () => {
-        const name = (document.getElementById('name') as HTMLInputElement).value;
-        const email = (document.getElementById('Email') as HTMLInputElement).value;
-        const phone = (document.getElementById('Phone') as HTMLInputElement).value;
-        const location = (document.getElementById('Location') as HTMLInputElement).value;
-        console.log(name + email + phone + location)
-        const response = await fetch(`${endpoint}/users/updateuser/${uuid}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token
-            },
-            body: JSON.stringify({ uuid, name, email, phone, location })
-        });
-        const data = await response.json();
-        console.log(data);
-
-        
-    }
-
-    const passUpdate = async () => {
-        const current = (document.getElementById('current') as HTMLInputElement).value;
-        const newpass = (document.getElementById('new') as HTMLInputElement).value;
-        const response = await fetch(`${endpoint}/users/updatepassword/${uuid}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token
-            },
-            body: JSON.stringify({ current, newpass })
-        });
-        const data = await response.json();
-        console.log(data);
-
-        if (response.ok)
-        {
-            localStorage.removeItem('token');
-            localStorage.removeItem('uuid');
-            router.push('/login');
-        }
-    }
-
+    
     return (
         <main>
             <h1 className='text-xl font-semibold'>My Cars</h1>
@@ -86,85 +42,7 @@ export default function ProfContent() {
                 href={`/profile/${uuid}/addcar`}>Add Car</Link>
             </div>
 
-            <div className="mt-9">
-                <Dialog>
-                    <DialogTrigger className={buttonVariants({ variant: "default" })}>
-                        Edit Profile
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <h2>Edit Your Profile</h2>
-
-                            <DialogDescription>
-                                <Tabs>
-                                    <TabsList className="grid w-full grid-cols-2">
-                                        <TabsTrigger value="account">Account</TabsTrigger>
-                                        <TabsTrigger value="password">Password</TabsTrigger>
-                                    </TabsList>
-                                    <TabsContent value="account">
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle>Account</CardTitle>
-                                            <CardDescription>
-                                            Make changes to your account here. Click save when you&apos;re done.
-                                            </CardDescription>
-                                        </CardHeader>
-                                        <CardContent className="space-y-2">
-                                            <div className="space-y-1">
-                                            <Label htmlFor="name">Name</Label>
-                                            <Input id="name" />
-                                            </div>
-                                            <div className="space-y-1">
-                                            <Label htmlFor="Email">Email</Label>
-                                            <Input id="Email" />
-                                            </div>
-                                            <div className="space-y-1">
-                                            <Label htmlFor="Phone">Phone</Label>
-                                            <Input id="Phone" />
-                                            </div>
-                                            <div className="space-y-1">
-                                            <Label htmlFor="Location">Location</Label>
-                                            <Input id="Location" />
-                                            </div>
-                                        </CardContent>
-                                        <CardFooter>
-                                            <div onClick={accUpdate}>
-                                            <Button>Save changes</Button>
-                                            </div>
-                                        </CardFooter>
-                                    </Card>
-                                    </TabsContent>
-                                    <TabsContent value="password">
-                                    <Card>
-                                    <CardHeader>
-                                        <CardTitle>Password</CardTitle>
-                                        <CardDescription>
-                                        Change your password here. After saving, you&apos;ll be logged out.
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="space-y-2">
-                                        <div className="space-y-1">
-                                        <Label htmlFor="current">Current password</Label>
-                                        <Input id="current" type="password" />
-                                        </div>
-                                        <div className="space-y-1">
-                                        <Label htmlFor="new">New password</Label>
-                                        <Input id="new" type="password" />
-                                        </div>
-                                    </CardContent>
-                                    <CardFooter>
-                                        <div onClick={passUpdate}>
-                                            <Button>Save Password</Button>
-                                        </div>
-                                    </CardFooter>
-                                    </Card>
-                                    </TabsContent>
-                                </Tabs>
-                            </DialogDescription>
-                        </DialogHeader>
-                    </DialogContent>
-                </Dialog>
-            </div>
+            
         </main>
     )
 }
