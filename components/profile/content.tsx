@@ -2,15 +2,13 @@
 
 import Link from "next/link";
 import { Button, buttonVariants } from "../ui/button";
-import { Dialog } from "@radix-ui/react-dialog";
-import { DialogContent, DialogDescription, DialogHeader, DialogTrigger } from "../ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Label } from "../ui/label";
-import { Input } from "../ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../ui/card";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from 'react';
-
+import { addDays, format } from "date-fns"
+import { z } from "zod";
+import { useForm } from 'react-hook-form'
 
 const endpoint=process.env.NEXT_PUBLIC_BACKEND_ENDPOINT;
 
@@ -25,6 +23,21 @@ let uuid: string | null, token: string | null;
         name: string;
         phone: string;
     };
+
+    const formSchema = z.object({
+        name: z.string().min(1, { message: 'Name must be at least 1 character long' }),
+        brand: z.string().min(1, { message: 'Brand must be at least 1 character long' }),
+        year: z.string().min(4, { message: 'Year must be at least 4 characters long' }),
+        status: z.string().min(1),
+        pricePerDay: z.string().min(1, { message: 'Price per day must be at least 1 character long' }),
+        availability: z.object({
+            startDate: z.string().min(1, { message: 'Start date must be at least 1 character long' }),
+            endDate: z.string().min(1, { message: 'End date must be at least 1 character long' }),
+        }),
+        location: z.string().min(1, { message: 'Location must be at least 1 character long' }),
+        description: z.string(),
+    })
+    
 
 export default function ProfContent() {
 
@@ -67,12 +80,19 @@ export default function ProfContent() {
     console.log(userCars)
     console.log(owners)
 
+    const router = useRouter()
+
+    const editCar = (cuid: string) => async () => {
+        router.push(`/profile/${uuid}/editcar/${cuid}`)
+    }
+
     
     return (
         <main>
             <h1 className='text-xl font-semibold'>My Cars</h1>
+            <div className="flex flex-wrap justify-start gap-4 p-4">
             {userCars.map((car) => (
-                <Card key={car.cuid} className="mt-10 h-[25rem] w-[20rem]">
+                <Card key={car.cuid} className="mt-10 h-[24rem] w-[22rem]">
                     <CardHeader>
                         <CardTitle>{car.brand} {car.name}</CardTitle>
                         <CardDescription>{car.year}</CardDescription>
@@ -95,11 +115,12 @@ export default function ProfContent() {
                         </CardDescription>
                     </CardContent>
                     <CardFooter className="mt-5">
-                        <Button variant='default' className="mr-5">Edit</Button>
+                        <Button variant='default' className="mr-5" onClick={editCar(car.cuid)}>Edit</Button>
                         <Button variant='destructive'>Delete</Button>
                     </CardFooter>
                 </Card>
               ))}
+              </div>
             <div className="flex hover:cursor-pointer mt-4">
                 <Link className={buttonVariants({ variant: "default" })}
                 href={`/profile/${uuid}/addcar`}>Add Car</Link>
