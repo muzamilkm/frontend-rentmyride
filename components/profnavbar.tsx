@@ -40,6 +40,8 @@ export default function ProfNavbar() {
     else{
       localStorage.removeItem('uuid')
       localStorage.removeItem('token')
+      console.log(localStorage.getItem('token'))
+      console.log(localStorage.getItem('uuid'))
       router.push('/')
     }
   }
