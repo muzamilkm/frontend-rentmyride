@@ -1,9 +1,35 @@
 "use client"
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
-import { Label } from "@radix-ui/react-dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { z } from 'zod'
+import { useEffect, useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+  } from "@/components/ui/form"
+import { useForm } from 'react-hook-form'
 import { Button } from "../ui/button";
+import { CalendarIcon } from "lucide-react"
+import { DateRange } from "react-day-picker"
+import { addDays, format } from "date-fns"
+import { cn } from "@/lib/utils"
+import { Calendar } from "@/components/ui/calendar"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+  } from "@/components/ui/popover"
+import { Alert, AlertTitle } from "../ui/alert";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
+import { Dialog, DialogTrigger, DialogTitle, DialogDescription, DialogContent } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { DialogHeader } from "../ui/dialog";
 
 const endpoint=process.env.NEXT_PUBLIC_BACKEND_ENDPOINT;
 
@@ -32,7 +58,65 @@ let uuid: string | null, token: string | null;
         owner: string;
       };
 
+      const formSchema = z.object({
+        renting: z.object({
+            startDate: z.string().min(1, { message: 'Start date must be at least 1 character long' }),
+            endDate: z.string().min(1, { message: 'End date must be at least 1 character long' }),
+        }),
+    })
+
 export default function BookCar() {
+
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: addDays(new Date(), 20),
+  })
+
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    console.log(data)
+    const startDateString = new Date(data.renting.startDate);
+    const endDateString = new Date(data.renting.endDate);
+    const timeDifference = endDateString.getTime() - startDateString.getTime();
+    const daysDifference = timeDifference / (1000 * 3600 * 24);
+    const totalPrice = daysDifference * parseInt(car?.pricePerDay || '0');
+    try{
+        const response = await fetch(`${endpoint}/bookings/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                car: cuid,
+                startDate: data.renting.startDate,
+                endDate: data.renting.endDate,
+                renter: uuid,
+                totalCost: totalPrice,
+            })
+        });
+        if (response.ok) {
+            console.log('Car booked successfully')
+        }
+        else {
+            const error = await response.json()
+            console.error('Failed to book car')
+            console.log(error)  
+        }
+    }
+    catch (error) {
+        console.error('Unexpected error: ', error)
+    }
+}
+
+const form = useForm<z.infer<typeof formSchema>>({
+  resolver: zodResolver(formSchema),
+  defaultValues: {
+      renting: {
+          startDate: date?.from ? format(date.from, "yyyy-MM-dd") : '',
+          endDate: date?.to ? format(date.to, "yyyy-MM-dd") : '',
+      },
+  }
+})
     
     const [cuid, setCuid] = useState<string>('');
   const [car, setCar] = useState<Car | null>(null);
@@ -91,38 +175,131 @@ export default function BookCar() {
           }
         }, [cuid, token]);
 
-        return (
-            <main>
-              <div className="flex flex-col items-center justify-center">
-                {car && (
-                  <Card key={car.cuid} className="mt-10 h-[30rem] w-[22rem]">
-                    <CardHeader>
-                      <CardTitle>{car.brand} {car.name}</CardTitle>
-                      <CardDescription>{car.year}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <CardDescription>
-                        <Label>Status: {car.status}</Label>
-                        <br />
-                        <Label>Price: Rs. {car.pricePerDay}/Day</Label>
-                        <br />
-                        <Label>Available Between: {car.availability.startDate} - {car.availability.endDate}</Label>
-                        <br />
-                        <Label>Location: {car.location}</Label>
-                        <br />
-                        <Label>Description: {car.description}</Label>
-                        <br />
-                        <Label>Owner: {owner ? owner.name : null}</Label>
-                        <br />
-                        <Label>Contact Owner: {owner ? owner.phone : null}</Label>
-                      </CardDescription>
-                    </CardContent>
-                    <CardFooter className="mt-5">
-                      <Button variant='default' className="mr-5">Book</Button>
-                    </CardFooter>
-                  </Card>
-                )}
-              </div>
-            </main>
+        return(
+        <main>
+      <div className="flex flex-col items-center justify-center">
+        {car && (
+          <Card key={car.cuid} className="mt-10 h-[30rem] w-[24rem]">
+            <CardHeader>
+              <CardTitle>{car.brand} {car.name}</CardTitle>
+              <CardDescription>{car.year}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                <div className='mb-2'>
+                <Label>Status: {car.status}</Label>
+                <br />
+                </div>
+                <div className='mb-2'>
+                <Label>Price: Rs. {car.pricePerDay}/Day</Label>
+                <br />
+                </div>
+                <div className='mb-2'>
+                <Label>Available Between: {car.availability.startDate} - {car.availability.endDate}</Label>
+                <br />
+                </div>
+                <div className='mb-2'>
+                <Label>Location: {car.location}</Label>
+                <br />
+                </div>
+                <div className='mb-2'>
+                <Label>Description: {car.description}</Label>
+                <br />
+                </div>
+                <div className='mb-2'>
+                <Label>Owner: {owner ? owner.name : null}</Label>
+                <br />
+                </div>
+                <div className='mb-2'>
+                <Label>Contact Owner: {owner ? owner.phone : null}</Label>
+                </div>
+              </CardDescription>
+            </CardContent>
+            <CardFooter className="mt-5">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant='default' className="mr-5">Book</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Book Car</DialogTitle>
+                    <DialogDescription>
+                      <Card>
+                        <CardHeader>
+                          <CardDescription>
+                            Fill the required information. Click Book to confirm.
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)}>
+                              <FormField control={form.control} name="renting"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Choose the duration of renting</FormLabel>
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <FormControl>
+                                          <Button
+                                            id="date"
+                                            variant={"outline"}
+                                            className={cn(
+                                              "w-[300px] justify-start text-left font-normal",
+                                              !date && "text-muted-foreground"
+                                            )}
+                                          >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {date?.from ? (
+                                              date.to ? (
+                                                <>
+                                                  {format(date.from, "LLL dd, y")} -{" "}
+                                                  {format(date.to, "LLL dd, y")}
+                                                </>
+                                              ) : (
+                                                format(date.from, "LLL dd, y")
+                                              )
+                                            ) : (
+                                              <span>Pick a date</span>
+                                            )}
+                                          </Button>
+                                        </FormControl>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                          initialFocus
+                                          mode="range"
+                                          defaultMonth={date?.from}
+                                          selected={date}
+                                          onSelect={(range) => {
+                                            setDate(range);
+                                            if (range?.from) {
+                                              form.setValue("renting.startDate", format(range.from, "yyyy-MM-dd"));
+                                            }
+                                            if (range?.to) {
+                                              form.setValue("renting.endDate", format(range.to, "yyyy-MM-dd"));
+                                            }
+                                          }}
+                                          numberOfMonths={2}
+                                        />
+                                      </PopoverContent>
+                                    </Popover>
+                                  </FormItem>
+                                )} />
+                              <div className="mt-8 flex items-center justify-center gap-4">
+                                <Button type="submit">Book Car</Button>
+                              </div>
+                            </form>
+                          </Form>
+                        </CardContent>
+                      </Card>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </CardFooter>
+          </Card>
+        )}
+      </div>
+    </main>
           );
 }
