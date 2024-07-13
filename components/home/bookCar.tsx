@@ -30,6 +30,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Dialog, DialogTrigger, DialogTitle, DialogDescription, DialogContent } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { DialogHeader } from "../ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const endpoint=process.env.NEXT_PUBLIC_BACKEND_ENDPOINT;
 
@@ -65,6 +66,11 @@ let uuid: string | null, token: string | null;
         }),
     })
 
+    const reviewFormSchema = z.object({
+      rating: z.string().min(1, { message: 'You must select a rating' }),
+      comment: z.string()
+  })
+
 export default function BookCar() {
 
   const [date, setDate] = useState<DateRange | undefined>({
@@ -79,6 +85,7 @@ export default function BookCar() {
     const timeDifference = endDateString.getTime() - startDateString.getTime();
     const daysDifference = timeDifference / (1000 * 3600 * 24);
     const totalPrice = daysDifference * parseInt(car?.pricePerDay || '0');
+    if (uuid){
     try{
         const response = await fetch(`${endpoint}/bookings/`, {
             method: "POST",
@@ -90,10 +97,11 @@ export default function BookCar() {
                 car: cuid,
                 startDate: data.renting.startDate,
                 endDate: data.renting.endDate,
-                renter: uuid,
+                renter: localStorage.getItem('uuid'),
                 totalCost: totalPrice,
             })
         });
+      
         if (response.ok) {
             console.log('Car booked successfully')
         }
@@ -106,7 +114,10 @@ export default function BookCar() {
     catch (error) {
         console.error('Unexpected error: ', error)
     }
-}
+  }
+  }
+
+  
 
 const form = useForm<z.infer<typeof formSchema>>({
   resolver: zodResolver(formSchema),
@@ -116,6 +127,10 @@ const form = useForm<z.infer<typeof formSchema>>({
           endDate: date?.to ? format(date.to, "yyyy-MM-dd") : '',
       },
   }
+})
+
+const reviewForm = useForm<z.infer<typeof reviewFormSchema>>({
+  resolver: zodResolver(reviewFormSchema),
 })
     
     const [cuid, setCuid] = useState<string>('');
@@ -174,6 +189,37 @@ const form = useForm<z.infer<typeof formSchema>>({
             usercar();
           }
         }, [cuid, token]);
+
+        async function submitReview(data: z.infer<typeof reviewFormSchema>) {
+          if (uuid){
+          try{
+              const response = await fetch(`${endpoint}/reviews/${cuid}`, {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${token}`
+                  },
+                  body: JSON.stringify({
+                      rating: data.rating,
+                      comment: data.comment,
+                      reviewer: uuid,
+                  })
+              });
+            
+              if (response.ok) {
+                  console.log('Review posted successfully')
+              }
+              else {
+                  const error = await response.json()
+                  console.error('Failed to post review')
+                  console.log(error)  
+              }
+          }
+          catch (error) {
+              console.error('Unexpected error: ', error)
+          }
+        }
+        }
 
         return(
         <main>
@@ -287,6 +333,63 @@ const form = useForm<z.infer<typeof formSchema>>({
                                 )} />
                               <div className="mt-8 flex items-center justify-center gap-4">
                                 <Button type="submit">Book Car</Button>
+                              </div>
+                            </form>
+                          </Form>
+                        </CardContent>
+                      </Card>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant='default' className="mr-5">Leave a Review</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Review Car</DialogTitle>
+                    <DialogDescription>
+                      <Card>
+                        <CardHeader>
+                          <CardDescription>
+                            Rented this car? Leave a review to assist others!
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <Form {...reviewForm}>
+                            <form onSubmit={reviewForm.handleSubmit(submitReview)}>
+                              <FormField control={reviewForm.control} name="rating"
+                                render={({ field }) => (
+                                  <FormItem className="mb-6">
+                                    <FormLabel>Chose a rating</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                          <SelectTrigger className="w-[180px]">
+                                              <SelectValue placeholder="Rating" />
+                                          </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                          <SelectItem value="1">1</SelectItem>
+                                          <SelectItem value="2">2</SelectItem>
+                                          <SelectItem value="3">3</SelectItem>
+                                          <SelectItem value="4">4</SelectItem>
+                                          <SelectItem value="5">5</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      <FormMessage>{reviewForm.formState.errors.rating?.message}</FormMessage>
+                                  </FormItem>
+                                )} />
+                                <FormField control={reviewForm.control} name="comment"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Leave a comment</FormLabel>
+                                      <Input {...field} placeholder="Optionally add a comment about your experience"/>
+                                      <FormMessage>{reviewForm.formState.errors.comment?.message}</FormMessage>
+                                  </FormItem>
+                                )} />
+                              <div className="mt-8 flex items-center justify-center gap-4">
+                                <Button type="submit">Post Review</Button>
                               </div>
                             </form>
                           </Form>
