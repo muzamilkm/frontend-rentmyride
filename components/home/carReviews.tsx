@@ -83,8 +83,8 @@ export default function CarReviews() {
         <main>
         
         <h1 className="mt-10 flex flex-col items-center justify-center">Car Reviews</h1>
-        <div className="flex flex-wrap justify-start gap-4 p-4">
-        {reviews.map((review) => {
+        <div className="flex flex-wrap justify-center gap-4 p-4">
+        {Array.isArray(reviews) && reviews.map((review) => {
                 return (
                     <div key={review.ruid} className="flex flex-col items-center justify-center border border-gray-200 p-4 m-4">
                         <p>Rating: {review.rating}</p>
