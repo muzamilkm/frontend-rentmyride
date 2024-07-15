@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../ui/dialog";
 
 const endpoint = process.env.NEXT_PUBLIC_BACKEND_ENDPOINT;
 
@@ -76,10 +77,32 @@ export default function UserReviews(){
         };
     
         getReviews();
-      }, [cars]);
+      }, []);
+
+      const deleteReview = async (ruid: string) => {
+        try {
+          const response = await fetch(`${endpoint}/reviews/${ruid}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + token
+            }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            console.log("Review deleted: ", data);
+            setReviews(reviews.filter((review) => review.ruid !== data.ruid));
+          } else {
+            const error = await response.json();
+            console.log("Error deleting review: ", error);
+          }
+        } catch (error) {
+          console.log("Unexpected error: ", error);
+        }
+      }
     return(
         <main>
-      <h1 className="flex flex-col items-center justify-center">My Reviews</h1>
+      <h1 className="flex flex-col items-center justify-center text-xl">My Reviews</h1>
       <div className="flex flex-wrap justify-center gap-4 p-4">
         {Array.isArray(reviews) && reviews.map((review) => {
           const car = cars[review.car];
@@ -98,7 +121,19 @@ export default function UserReviews(){
               {review.comment && <p>Comment: {review.comment}</p>}
 
               <Button variant="default" className="mt-5">Edit Review</Button>
+              <Dialog>
+                <DialogTrigger>
               <Button variant="destructive" className="mt-5">Delete Review</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogTitle>Delete Review</DialogTitle>
+              <p>Are you sure you want to delete this review?</p>
+              <div className="flex flex-wrap">
+              <Button variant="destructive" className="mt-5 w-[5rem] h-auto mr-5" onClick={() => deleteReview(review.ruid)}>Yes</Button>
+              <Button variant="default" className="mt-5 w-[5rem] h-auto">No</Button>
+              </div>
+              </DialogContent>
+              </Dialog>
             </div>
           );
         })}
