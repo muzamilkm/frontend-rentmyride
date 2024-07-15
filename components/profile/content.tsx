@@ -86,7 +86,10 @@ export default function ProfContent() {
         router.push(`/profile/${uuid}/editcar/${cuid}`)
     }
 
-    
+    const viewBookings = (cuid: string) => async () => {
+        router.push(`/profile/${uuid}/carbookings/${cuid}`)
+    }
+
     return (
         <main>
             <h1 className='text-xl font-semibold'>My Cars</h1>
@@ -116,6 +119,7 @@ export default function ProfContent() {
                     </CardContent>
                     <CardFooter className="mt-5">
                         <Button variant='default' className="mr-5" onClick={editCar(car.cuid)}>Edit</Button>
+                        <Button variant='default' className="mr-5" onClick={viewBookings(car.cuid)}>View Bookings</Button>
                         <Button variant='destructive'>Delete</Button>
                     </CardFooter>
                 </Card>
