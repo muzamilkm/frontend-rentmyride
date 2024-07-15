@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { useRouter } from "next/navigation";
 
 const endpoint = process.env.NEXT_PUBLIC_BACKEND_ENDPOINT;
 
@@ -28,6 +29,8 @@ let uuid: string | null, token: string | null;
     }
 
 export default function UserReviews(){
+
+  const router = useRouter();
 
     const [reviews, setReviews] = useState<Review[]>([]);
     const [cars, setCars] = useState<Record<string, Car>>({});
@@ -92,6 +95,7 @@ export default function UserReviews(){
             const data = await response.json();
             console.log("Review deleted: ", data);
             setReviews(reviews.filter((review) => review.ruid !== data.ruid));
+            router.push(`/profile/${uuid}`);
           } else {
             const error = await response.json();
             console.log("Error deleting review: ", error);
