@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { Card, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger, DialogTitle } from "../ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 
 const endpoint=process.env.NEXT_PUBLIC_BACKEND_ENDPOINT;
@@ -33,6 +35,8 @@ export default function UserCarBookings(){
     const [cuid, setCuid] = useState<string>('');
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [users, setUsers] = useState<Record<string, User>>({});
+
+    const [status, setStatus] = useState<string>('');
     
     useEffect(() => {
         const pathArray = window.location.pathname.split('/');
@@ -82,6 +86,31 @@ export default function UserCarBookings(){
           getBookings();
     }, [cuid]);
 
+    const handleStatusChange = (value: string) => {
+        setStatus(value);
+    }
+
+    const handleSave = async (buid: string) => {
+        if (!status) return;
+        try {
+            const response = await fetch(`${endpoint}/bookings/updatestatus/${buid}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify({
+                    status: status
+                })
+            });
+            if (response.ok) {
+                console.log("Status updated successfully");
+            }
+        } catch (error) {
+            console.log("error", error);
+        }
+    }
+
     return (
         <main>
             <h1 className="mt-10 flex flex-col items-center justify-center text-xl">Car Bookings</h1>
@@ -94,7 +123,30 @@ export default function UserCarBookings(){
                     <p>Phone: {users[booking.renter]?.phone}</p>
                     <p>Total Cost: {booking.totalCost}</p>
                     <p>Status: {booking.status}</p>
+                    <Dialog>
+                      <DialogTrigger>
                     <Button variant='default' className="mt-5">Update Status</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogTitle>Update Status</DialogTitle>
+                      <DialogHeader>
+                        <DialogDescription className="mt-5">
+                          <Select onValueChange={handleStatusChange}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Status"></SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="accepted">Accepted</SelectItem>
+                              <SelectItem value="rejected">Rejected</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button variant='default' className="mt-5" onClick={() => {handleSave(booking.buid)}}>Save</Button>
+                        </DialogDescription>
+                      </DialogHeader>
+
+                    </DialogContent>
+                    </Dialog>
                     </div>
                 </Card>
             ))}
