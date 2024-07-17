@@ -1,3 +1,5 @@
+"use client"
+
 import Footer from "@/components/footer";
 import BookCar from "@/components/home/bookCar";
 import CarReviews from "@/components/home/carReviews";

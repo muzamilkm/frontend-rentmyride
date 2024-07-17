@@ -1,3 +1,5 @@
+"use client"
+
 import EditCar from '@/components/editcar/index';
 import Layout from '@/components/profile/layout';
 import { useRouter } from 'next/navigation';

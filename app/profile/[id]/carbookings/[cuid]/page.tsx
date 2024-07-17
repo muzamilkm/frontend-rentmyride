@@ -1,3 +1,5 @@
+"use client"
+
 import UserCarBookings from "@/components/profile/carbookings";
 import Layout from "@/components/profile/layout";
 import { useRouter } from "next/navigation";
