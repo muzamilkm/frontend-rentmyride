@@ -27,7 +27,7 @@ export default function Footer() {
           © {new Date().getFullYear()}{" "}
           <a
             target="_blank"
-            href="https://linkedin.pk/muzamilkm"
+            href="https://www.linkedin.com/in/muzamilkm/"
             className="hover:underline"
           >
             Muzamil Kaleem
