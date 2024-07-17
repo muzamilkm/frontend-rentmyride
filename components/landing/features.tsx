@@ -39,13 +39,14 @@ export default function Features() {
         <div
           
         >
+          {features.image && (
           <Image
-            src={features.image}
-            width={500}
-            height={500}
-            // className="dark:brightness-0 dark:invert-[1]"
-            alt="Features image"
+          src={features.image}
+          width={500}
+          height={500}
+          alt="Features"
           />
+          )}
         </div>
       </div>
     </section>

@@ -1,7 +1,12 @@
 import ProfPanel from "./profilepanel";
 import ProfNavbar from "../profnavbar";
+import { ReactNode } from "react";
 
-const Layout = ({children}) => {
+type LayoutProps = {
+    children: ReactNode;
+  };
+
+const Layout = ({children}: LayoutProps) => {
     return (
         <main>
             <ProfNavbar/>
